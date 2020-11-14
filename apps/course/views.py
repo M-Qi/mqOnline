@@ -13,14 +13,8 @@ class CourseListView(View):
     def get(self,request):
         page = request.GET.get("page",1)
         sort = request.GET.get("sort",'')
-
         all_course = Course.objects.all()
-
         hot_courses = Course.objects.order_by('-student_nums')[:2]
-        if sort=='hot':
-            all_course = all_course.order_by('-click_nums')
-        if sort == 'students':
-            all_course = all_course.order_by('-student_nums')
         # 搜索功能
         search_keywords = request.GET.get('keywords', '')
         if search_keywords:
@@ -29,6 +23,11 @@ class CourseListView(View):
             all_course = all_course.filter(
                 Q(name__icontains=search_keywords) | Q(desc__icontains=search_keywords) | Q(
                     detail__icontains=search_keywords))
+        if sort=='hot':
+            all_course = all_course.order_by('-click_nums')
+        if sort == 'students':
+            all_course = all_course.order_by('-student_nums')
+
         page_obj,page_li = process_page(page,all_course)
 
 
@@ -36,7 +35,8 @@ class CourseListView(View):
             'all_course':page_obj,
             'hot_courses':hot_courses,
             'page_li':page_li,
-            'sort':sort
+            'sort':sort,
+            'search_keywords':search_keywords,
         }
         return render(request,'course/course-list.html',context)
 

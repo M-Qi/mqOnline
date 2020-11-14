@@ -34,7 +34,8 @@ class EmailVerfyRecord(models.Model):
 
     send_choices = (
      ('register','注册'),
-     ('forget','找回密码')
+     ('forget','找回密码'),
+     ('update_email','修改邮箱')
     )
 
     code = models.CharField('验证码',max_length=20)

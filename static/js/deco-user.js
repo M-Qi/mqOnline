@@ -1,4 +1,4 @@
-//修改个人中心邮箱验证码
+    //修改个人中心邮箱验证码
 function sendCodeChangeEmail($btn){
     var verify = verifyDialogSubmit(
         [
@@ -86,7 +86,7 @@ $(function(){
             cache: false,
             type: "POST",
             dataType:'json',
-            url:"/users/update/pwd/",
+            url:'/user/update/pwd/',
             data:$('#jsResetPwdForm').serialize(),
             async: true,
             success: function(data) {

@@ -163,7 +163,6 @@ class AddFavView(View):
                 user_fav.fav_type = type
                 user_fav.save()
                 return JsonResponse({"status":"success",'msg':"已收藏"})
-
             else:
                 return JsonResponse({"status":"fail","msg":"收藏出错"})
 
@@ -191,6 +190,7 @@ class TeacherListView(View):
             'page_li':page_li,
             'hot':sort,
             'sorted_teacher':sorted_teacher,
+            'search_keywords':search_keywords,
         }
         return render(request,'teacher/teachers-list.html',context)
 

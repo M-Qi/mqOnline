@@ -15,7 +15,7 @@ active
     <section>
         <div class="wp">
             <ul  class="crumbs">
-                <li><a href="../index.html">首页</a>></li>
+                <li><a href="{% url 'index' %}">首页</a>></li>
                 <li>公开课</li>
             </ul>
         </div>
@@ -32,9 +32,9 @@ active
 			<div class="left layout">
 				<div class="head">
 					<ul class="tab_header">
-						<li class="{% if sort == '' %}active{% endif %}"><a href="?sort=">最新 </a></li>
-						<li class="{% if sort == 'hot' %}active{% endif %}"><a href="?sort=hot">最热门</a></li>
-						<li class="{% if sort == 'students' %}active{% endif %}"><a href="?sort=students">参与人数</a></li>
+						<li class="{% if sort == '' %}active{% endif %}"><a href="?sort&keywords={{ search_keywords }}">最新 </a></li>
+						<li class="{% if sort == 'hot' %}active{% endif %}"><a href="?sort=hot&keywords={{ search_keywords }}">最热门</a></li>
+						<li class="{% if sort == 'students' %}active{% endif %}"><a href="?sort=students&keywords={{ search_keywords }}">参与人数</a></li>
 					</ul>
 				</div>
                 <div id="inWindow">
@@ -64,7 +64,7 @@ active
                     <div class="pageturn">
                         <ul class="pagelist">
                             {% if all_course.has_previous %}
-                                <li class='long'><a href="?page={{ all_course.previous_page_number }}">上一页</a></li>
+                                <li class='long'><a href="?sort={{ sort }}&keywords={{ search_keywords }}&page={{ all_course.previous_page_number }}">上一页</a></li>
                             {% else %}
                                 <li class='long'><a href="javascript:">上一页</a></li>
                             {% endif %}
@@ -75,14 +75,14 @@ active
                                 {% elif page == all_course.number %}
                                     <li class="active"><a href="javascript:">{{ page }}</a></li>
                                 {% else %}
-                                    <li><a href="?page={{ page }}" class="page">{{ page }}</a></li>
+                                    <li><a href="?sort={{ sort }}&keywords={{ search_keywords }}&page={{ page }}" class="page">{{ page }}</a></li>
                                 {% endif %}
 
                             {% endfor %}
 
 
                             {% if all_course.has_next %}
-                                <li class="long"><a href="?page={{ all_course.next_page_number }}">下一页</a></li>
+                                <li class="long"><a href="?sort={{ sort }}&keywords={{ search_keywords }}&page={{ all_course.next_page_number }}">下一页</a></li>
                             {% else %}
                                 <li class="long"><a href="javascript:">下一页</a></li>
                             {% endif %}

@@ -30,5 +30,5 @@ urlpatterns = [
     path('',views.index,name='index'),
     path('user/',include('users.urls',namespace='users')), # 注册用户路由
     path('org/',include('organization.urls',namespace='org')), # 注册机构&城市
-    path("course/",include('course.urls',namespace='course'))
+    path("course/",include('course.urls',namespace='course')),
 ]

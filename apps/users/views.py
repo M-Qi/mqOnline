@@ -1,4 +1,8 @@
-import random
+import random,json
+
+from django.http import HttpResponse, JsonResponse
+
+from utils.mixin_utils import LoginRequireMixin
 from utils.email_send import send_register_email
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
@@ -9,8 +13,10 @@ from django.contrib.auth.backends import ModelBackend
 from django.views.generic.base import View
 from django.core.mail import send_mail
 from users.models import UserProfile,EmailVerfyRecord
-from .forms import LoginForm, RegisterForm, ForgetPwdForm, ModifyPwdForm
+from .forms import LoginForm, RegisterForm, ForgetPwdForm, ModifyPwdForm,UploadImageForm
 from django.contrib.auth import login,authenticate,logout
+
+
 # Create your views here.
 def user_logout(request):
     logout(request)
@@ -157,4 +163,64 @@ class ModifyPwdView(View):
             email = request.POST.get('email','')
 
             return render(request,'password_reset.html',{"forms":forms,'email':email})
+
+
+class UserinfoView(LoginRequireMixin,View):
+
+    def get(self,request):
+
+
+        return render(request,'users/usercenter-info.html')
+
+    def post(self,request):
+
+        pass
+
+
+class UploadImageView(View):
+    def get(self,request):
+        pass
+
+    def post(self,request):
+        image_form = UploadImageForm(request.POST,request.FILES)
+        if image_form.is_valid():
+            image = image_form.cleaned_data.get('image')
+            request.user.image = image
+            request.user.save()
+            return JsonResponse({"status":'success'})
+        else:
+            return JsonResponse({"status":"fail"})
+
+
+class UpdatePwdView(View):
+    def get(self,request):
+        pass
+
+    def post(self,request):
+
+        modify_form = ModifyPwdForm(request.POST)
+        if modify_form.is_valid():
+            pwd1 = request.POST.get("password1",'')
+            pwd2 = request.POST.get("password2",'')
+            if pwd1 != pwd2:
+                return JsonResponse({"status":"fail",'msg':"两次密码不一致"})
+            user = request.user
+            user.password = make_password(pwd1)
+            user.save()
+            return JsonResponse({"status":"success"})
+        else:
+            return JsonResponse(json.dumps(modify_form.errors))
+
+
+class SendEmailCodeView(View):
+    def get(self,request):
+        email = request.GET.get("email",'')
+        if UserProfile.objects.filter(email=email):
+            return JsonResponse({"email":"邮箱已经存在"})
+        send_register_email(email,'update_email')
+        return JsonResponse({"status":"success"})
+
+    def post(self,request):
+        pass
+
 
