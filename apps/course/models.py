@@ -28,6 +28,8 @@ class Course(models.Model):
     teacher = models.ForeignKey(Teacher,verbose_name='讲师',null=True,blank=True,on_delete=models.CASCADE)
     youneed_know = models.CharField("课程须知",max_length=200,default='')
     teacher_tell = models.CharField("老师告诉你",max_length=300,default='')
+    is_banner = models.BooleanField("是否轮播",default=False)
+
 
     class Meta:
         verbose_name = "课程"
@@ -39,6 +41,13 @@ class Course(models.Model):
     def get_zj_nums(self):
         '''获取课程的章节数'''
         return self.lesson_set.all().count()
+    get_zj_nums.short_description = '章节数' # 在后台显示的名称
+
+    def go_to(self):
+        from django.utils.safestring import mark_safe
+        # mark_safe后就不会转义
+        return mark_safe('<a target="_blank" href="http://127.0.0.1:8000/course/course/%d/">跳转</a>'%self.id)
+    go_to.short_description = '跳转'
 
     def get_learn_users(self):
         '''获取这门课程学习用户'''
@@ -47,6 +56,19 @@ class Course(models.Model):
     def get_lesson(self):
         '''获取当前课程章节信息'''
         return self.lesson_set.all()
+
+class BannerCourse(Course):
+    '''显示轮播课程'''
+    class Meta:
+        verbose_name = '轮播课程'
+        verbose_name_plural = verbose_name
+        # 这里必须设置proxy=True
+        proxy = True
+
+
+
+
+
 
 class Lesson(models.Model):
     '''章节信息表'''

@@ -81,6 +81,8 @@ class OrgHomeView(View):
     def get(self,request,org_id):
         # 根据id找到课程机构
         course_org = CourseOrg.objects.get(id=org_id)
+        course_org.click_nums +=1
+        course_org.save()
         # 反向查询到所有老师以及课程
         all_course = course_org.course_set.all()[:4]
         all_teacher = course_org.teacher_set.all()[:2]
@@ -128,7 +130,8 @@ class OrgTeacherView(View):
     def get(self,request,org_id):
         course_org = CourseOrg.objects.get(id=org_id)
         all_teacher = course_org.teacher_set.all()
-
+        course_org.click_nums +=1
+        course_org.save()
         context = {
             'course_org':course_org,
             'all_teacher':all_teacher
@@ -153,6 +156,24 @@ class AddFavView(View):
         if exist_record:
             # 说明已经有数据，需要取消收藏
             exist_record.delete()
+            if int(type) == 1:
+                course = Course.objects.get(id=int(id))
+                course.fav_nums -= 1
+                if course.fav_nums < 0:
+                    course.fav_nums = 0
+                course.save()
+            elif int(type) == 2:
+                org = CourseOrg.objects.get(id=int(id))
+                org.fav_nums -= 1
+                if org.fav_nums < 0:
+                    org.fav_nums = 0
+                org.save()
+            elif int(type) == 3:
+                teacher = Teacher.objects.get(id=int(id))
+                teacher.fav_nums -= 1
+                if teacher.fav_nums < 0:
+                    teacher.fav_nums = 0
+                teacher.save()
             return JsonResponse({"status":"success","msg":"收藏"})
         else:
             # 说明没有数据需要添加收藏数据
@@ -162,6 +183,18 @@ class AddFavView(View):
                 user_fav.fav_id = id
                 user_fav.fav_type = type
                 user_fav.save()
+                if int(type) == 1:
+                    course = Course.objects.get(id=int(id))
+                    course.fav_nums += 1
+                    course.save()
+                elif int(type) == 2:
+                    org = CourseOrg.objects.get(id=int(id))
+                    org.fav_nums += 1
+                    org.save()
+                elif int(type) == 3:
+                    teacher = Teacher.objects.get(id=int(id))
+                    teacher.fav_nums += 1
+                    teacher.save()
                 return JsonResponse({"status":"success",'msg':"已收藏"})
             else:
                 return JsonResponse({"status":"fail","msg":"收藏出错"})

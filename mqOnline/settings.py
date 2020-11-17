@@ -137,6 +137,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = 'static'
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static')
 ]
@@ -159,6 +161,9 @@ EMAIL_PORT = 25  # smtp端口
 EMAIL_HOST_USER = '18295903413@163.com'  # 发送的邮箱
 EMAIL_HOST_PASSWORD = 'WRGFIYGHAJEJIWPR'  # 163客户端授权码
 EMAIL_FROM = 'python<18295903413@qq.com>'  # 收件人看到的发件人信息
+
+
+# 自定义404，500等页面
 
 
 

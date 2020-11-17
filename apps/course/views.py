@@ -72,8 +72,13 @@ class CourseInfoView(LoginRequireMixin,View):
     def get(self,request,course_id):
 
         course = Course.objects.get(id=course_id)
+
         # 查询用户是否学习了该门课程
         if not UserCourse.objects.filter(user=request.user,course=course).exists():
+            # 如果没有学习 就将学习人数加 1
+            course.student_nums += 1
+            course.save()
+
             # 如果没有学习该门课程就关联起来
             user_course = UserCourse(user=request.user, course=course)
             user_course.save()

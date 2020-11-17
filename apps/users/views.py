@@ -2,19 +2,22 @@ import random,json
 
 from django.http import HttpResponse, JsonResponse
 
+from course.models import Course
+from operation.models import UserCourse, UserFavorite, UserMessage
+from organization.models import CourseOrg, Teacher
 from utils.mixin_utils import LoginRequireMixin
+from utils.page_utils import process_page
 from utils.email_send import send_register_email
-from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.backends import ModelBackend
 from django.views.generic.base import View
-from django.core.mail import send_mail
 from users.models import UserProfile,EmailVerfyRecord
-from .forms import LoginForm, RegisterForm, ForgetPwdForm, ModifyPwdForm,UploadImageForm
+from .forms import LoginForm, RegisterForm, ForgetPwdForm, ModifyPwdForm,UploadImageForm,UserInfoForm
 from django.contrib.auth import login,authenticate,logout
+
 
 
 # Create your views here.
@@ -174,8 +177,14 @@ class UserinfoView(LoginRequireMixin,View):
 
     def post(self,request):
 
-        pass
+        user_info_form = UserInfoForm(request.POST,instance=request.user)
+        if user_info_form.is_valid():
+            print('birth==',user_info_form.cleaned_data.get('birday'))
+            user_info_form.save()
 
+            return JsonResponse({"status":"success"})
+        else:
+            return JsonResponse(json.dumps(user_info_form.errors))
 
 class UploadImageView(View):
     def get(self,request):
@@ -224,3 +233,100 @@ class SendEmailCodeView(View):
         pass
 
 
+class UpdateEmailView(View):
+    def get(self,request):
+        pass
+
+    def post(self,request):
+        email = request.POST.get("email",'')
+        code = request.POST.get('code','')
+
+        existed_records = EmailVerfyRecord.objects.filter(code=code,send_type='update_email',email=email)
+        if existed_records:
+            user = request.user
+            user.email = email
+            user.save()
+            return JsonResponse({"status":"success"})
+        else:
+            return JsonResponse({"status":"fail"})
+
+
+class MyCourseView(LoginRequireMixin,View):
+    def get(self,request):
+        user_courses = UserCourse.objects.filter(user=request.user)
+        context = {
+            'user_courses':user_courses
+        }
+        return render(request,'users/usercenter-mycourse.html',context)
+
+    def post(self,request):
+        pass
+
+
+class MyFavOrgView(LoginRequireMixin,View):
+    '''我收藏的机构'''
+    def get(self,request):
+        org_list = []
+        fav_orgs = UserFavorite.objects.filter(user=request.user,fav_type=2)
+        for fav_org in fav_orgs:
+
+            org_list.append(CourseOrg.objects.get(id=fav_org.fav_id))
+
+        context = {
+            'org_list':org_list
+        }
+        return render(request,'users/usercenter-fav-org.html',context)
+
+
+
+    def post(self,request):
+        pass
+
+
+class MyFavTeacher(View):
+    def get(self, request):
+        teacher_list = []
+        fav_teachers = UserFavorite.objects.filter(user=request.user, fav_type=3)
+        for fav_teacher in fav_teachers:
+            teacher_id = fav_teacher.fav_id
+            teacher = Teacher.objects.get(id=teacher_id)
+            teacher_list.append(teacher)
+        return render(request, "users/usercenter-fav-teacher.html", {
+            "teacher_list": teacher_list,
+        })
+
+    def post(self,request):
+        pass
+
+
+class MyFavCourse(LoginRequireMixin,View):
+    def get(self,request):
+        course_list=[]
+        fav_courses = UserFavorite.objects.filter(user=request.user,fav_type=1)
+        for fav_course in fav_courses:
+            course_list.append(Course.objects.get(id=fav_course.fav_id))
+
+        context = {
+            'course_list':course_list
+        }
+        return render(request,'users/usercenter-fav-course.html',context)
+
+    def post(self,request):
+        pass
+
+
+class MyMessageView(View):
+    '''我的消息'''
+    def get(sel,request):
+        page = request.GET.get("page",'1')
+        page = int(page)
+        all_message = UserMessage.objects.filter(user=request.user.id)
+        page_obj,page_li = process_page(page,all_message)
+
+        context = {
+            'all_messages':page_obj,
+            'page_li':page_li
+        }
+        return render(request,'users/usercenter-message.html',context)
+    def post(self,request):
+        pass

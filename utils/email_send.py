@@ -11,7 +11,7 @@ def random_srt(random_length=8):
     str = ''
     chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789'
     for i in range(0,random_length):
-        index = random.randint(0,len(chars))
+        index = random.randint(0,len(chars)-1)
         str+=chars[index]
 
     return str
@@ -59,11 +59,16 @@ def send_register_email(email,send_type='register'):
         if send_status:
             pass
     elif send_type == "update_email":
-        email_title = "NBA邮箱修改验证码"
+        email_title = "邮箱修改验证码"
         email_body = "你的邮箱验证码为{0}".format(code)
 
         # 使用Django内置函数完成邮件发送。四个参数：主题，邮件内容，从哪里发，接受者list
-        send_status = send_mail(email_title, email_body, settings.EMAIL_HOST_USER, [email])
+        send_status = send_mail(
+            email_title,
+            email_body,
+            settings.EMAIL_HOST_USER,
+            [email],
+        )
         # 如果发送成功
         if send_status:
-            pass
+            print('发送成功')
